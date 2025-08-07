@@ -92,7 +92,7 @@ class FilmControllerTest {
     void createFilm_EmptyBody_Returns400() throws Exception {
         mockMvc.perform(post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{}")) // Пустой JSON объект
+                        .content("{}"))
                 .andExpect(status().isBadRequest());
     }
 }

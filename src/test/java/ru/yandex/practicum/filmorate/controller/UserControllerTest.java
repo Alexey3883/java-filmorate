@@ -88,7 +88,7 @@ class UserControllerTest {
     void createUser_EmptyBody_Returns400() throws Exception {
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{}")) // Пустой JSON объект
+                        .content("{}"))
                 .andExpect(status().isBadRequest());
     }
 }
