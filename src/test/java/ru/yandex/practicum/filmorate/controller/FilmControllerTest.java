@@ -10,6 +10,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -26,8 +27,13 @@ class FilmControllerTest {
 
     @Test
     void createFilm_ValidFilm_Returns200() throws Exception {
-        Film film = new Film(null, "Valid Film", "Description",
-                LocalDate.of(2000, 1, 1), 120);
+        Film film = Film.builder()
+                .name("Valid Film")
+                .description("Description")
+                .releaseDate(LocalDate.of(2000, 1, 1))
+                .duration(120)
+                .likes(new HashSet<>())
+                .build();
 
         mockMvc.perform(post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -37,46 +43,42 @@ class FilmControllerTest {
 
     @Test
     void createFilm_EmptyName_Returns400() throws Exception {
-        Film film = new Film(null, "", "Description",
-                LocalDate.of(2000, 1, 1), 120);
+        String filmJson = "{\"name\":\"\", \"description\":\"Description\", \"releaseDate\":\"2000-01-01\", \"duration\":120}";
 
         mockMvc.perform(post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(film)))
+                        .content(filmJson))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     void createFilm_Description201Chars_Returns400() throws Exception {
         String longDescription = "a".repeat(201);
-        Film film = new Film(null, "Film", longDescription,
-                LocalDate.of(2000, 1, 1), 120);
+        String filmJson = "{\"name\":\"Film\", \"description\":\"" + longDescription + "\", \"releaseDate\":\"2000-01-01\", \"duration\":120}";
 
         mockMvc.perform(post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(film)))
+                        .content(filmJson))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     void createFilm_ReleaseDateBefore1895_Returns400() throws Exception {
-        Film film = new Film(null, "Film", "Description",
-                LocalDate.of(1895, 12, 27), 120);
+        String filmJson = "{\"name\":\"Film\", \"description\":\"Description\", \"releaseDate\":\"1895-12-27\", \"duration\":120}";
 
         mockMvc.perform(post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(film)))
+                        .content(filmJson))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     void createFilm_NegativeDuration_Returns400() throws Exception {
-        Film film = new Film(null, "Film", "Description",
-                LocalDate.of(2000, 1, 1), -10);
+        String filmJson = "{\"name\":\"Film\", \"description\":\"Description\", \"releaseDate\":\"2000-01-01\", \"duration\":-10}";
 
         mockMvc.perform(post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(film)))
+                        .content(filmJson))
                 .andExpect(status().isBadRequest());
     }
 
@@ -84,7 +86,7 @@ class FilmControllerTest {
     void createFilm_EmptyBody_Returns400() throws Exception {
         mockMvc.perform(post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(""))
+                        .content("{}")) // Пустой JSON объект
                 .andExpect(status().isBadRequest());
     }
 }
