@@ -5,7 +5,10 @@ import java.util.Collection;
 
 public interface FilmStorage {
     Film addFilm(Film film);
+
     Film updateFilm(Film film);
+
     Film getFilm(Integer id);
+
     Collection<Film> getAllFilms();
 }

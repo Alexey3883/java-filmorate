@@ -15,12 +15,17 @@ import java.util.*;
 @NoArgsConstructor
 public class Film {
     private Integer id;
+
     @NotBlank
     private String name;
+
     @Size(max = 200)
     private String description;
+
     private LocalDate releaseDate;
+
     @Positive
     private int duration;
+
     private Set<Integer> likes = new HashSet<>();
 }
