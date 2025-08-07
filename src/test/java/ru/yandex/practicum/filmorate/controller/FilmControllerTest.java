@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import java.util.HashSet;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -32,13 +33,20 @@ class FilmControllerTest {
                 .description("Description")
                 .releaseDate(LocalDate.of(2000, 1, 1))
                 .duration(120)
-                .likes(new HashSet<>())
                 .build();
 
         mockMvc.perform(post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(film)))
-                .andExpect(status().isOk());
+                .andDo(result -> {
+                    System.out.println("=== DEBUG ===");
+                    System.out.println("Request URI: " + result.getRequest().getRequestURI());
+                    System.out.println("Status: " + result.getResponse().getStatus());
+                    System.out.println("Response: " + result.getResponse().getContentAsString());
+                    System.out.println("Headers: " + result.getResponse().getHeaderNames());
+                })
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").isNumber());
     }
 
     @Test

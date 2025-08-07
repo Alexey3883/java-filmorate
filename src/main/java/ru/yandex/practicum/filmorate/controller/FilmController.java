@@ -22,7 +22,10 @@ public class FilmController {
 
     @PostMapping
     public Film createFilm(@Valid @RequestBody Film film) {
-        return filmService.addFilm(film);
+        log.info("Создание фильма: {}", film);
+        Film created = filmService.addFilm(film);
+        log.info("Создан фильм: {}", created);
+        return created;
     }
 
     @PutMapping
