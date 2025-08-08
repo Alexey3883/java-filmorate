@@ -27,6 +27,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleNotFoundException(NotFoundException e) {
+        log.warn("Объект не найден: {}", e.getMessage());
         return new ErrorResponse(e.getMessage());
     }
 

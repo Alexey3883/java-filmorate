@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -55,35 +56,35 @@ public class UserService {
         }
 
         User user = getUser(userId);
+
         User friend = getUser(friendId);
 
         user.getFriends().add(friendId);
+
         friend.getFriends().add(userId);
     }
 
     public void removeFriend(Integer userId, Integer friendId) {
-        User user = userStorage.getUser(userId);
-        User friend = userStorage.getUser(friendId);
+        User user = getUser(userId);
+        User friend = getUser(friendId);
         user.getFriends().remove(friendId);
         friend.getFriends().remove(userId);
     }
 
     public List<User> getFriends(Integer userId) {
-        User user = userStorage.getUser(userId);
-        List<User> friends = new ArrayList<>();
-        for (Integer friendId : user.getFriends()) {
-            friends.add(userStorage.getUser(friendId));
-        }
-        return friends;
+        User user = getUser(userId);
+        return user.getFriends().stream()
+                .map(this::getUser)
+                .collect(Collectors.toList());
     }
 
     public List<User> getCommonFriends(Integer userId, Integer otherId) {
-        Set<Integer> commonIds = new HashSet<>(userStorage.getUser(userId).getFriends());
-        commonIds.retainAll(userStorage.getUser(otherId).getFriends());
-        List<User> commonFriends = new ArrayList<>();
-        for (Integer id : commonIds) {
-            commonFriends.add(userStorage.getUser(id));
-        }
-        return commonFriends;
+        User user = getUser(userId);
+        User otherUser = getUser(otherId);
+
+        return user.getFriends().stream()
+                .filter(id -> otherUser.getFriends().contains(id))
+                .map(this::getUser)
+                .collect(Collectors.toList());
     }
 }
