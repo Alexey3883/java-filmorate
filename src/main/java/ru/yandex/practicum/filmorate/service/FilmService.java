@@ -23,13 +23,13 @@ public class FilmService {
     }
 
     public Film addFilm(Film film) {
-        if (filmStorage.getFilm(film.getId()) == null) {
-            throw new NotFoundException("Фильм с id=" + film.getId() + " не найден");
-        }
-        return filmStorage.updateFilm(film);
+        return filmStorage.addFilm(film);
     }
 
     public Film updateFilm(Film film) {
+        if (filmStorage.getFilm(film.getId()) == null) {
+            throw new NotFoundException("Фильм с id=" + film.getId() + " не найден");
+        }
         return filmStorage.updateFilm(film);
     }
 
