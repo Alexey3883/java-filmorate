@@ -26,57 +26,65 @@ class FilmControllerTest {
 
     @Test
     void createFilm_ValidFilm_Returns200() throws Exception {
-        Film film = new Film(null, "Valid Film", "Description",
-                LocalDate.of(2000, 1, 1), 120);
+        Film film = Film.builder()
+                .name("Valid Film")
+                .description("Description")
+                .releaseDate(LocalDate.of(2000, 1, 1))
+                .duration(120)
+                .build();
 
         mockMvc.perform(post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(film)))
-                .andExpect(status().isOk());
+                .andDo(result -> {
+                    System.out.println("=== DEBUG ===");
+                    System.out.println("Request URI: " + result.getRequest().getRequestURI());
+                    System.out.println("Status: " + result.getResponse().getStatus());
+                    System.out.println("Response: " + result.getResponse().getContentAsString());
+                    System.out.println("Headers: " + result.getResponse().getHeaderNames());
+                })
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").isNumber());
     }
 
     @Test
     void createFilm_EmptyName_Returns400() throws Exception {
-        Film film = new Film(null, "", "Description",
-                LocalDate.of(2000, 1, 1), 120);
+        String filmJson = "{\"name\":\"\", \"description\":\"Description\", \"releaseDate\":\"2000-01-01\", \"duration\":120}";
 
         mockMvc.perform(post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(film)))
+                        .content(filmJson))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     void createFilm_Description201Chars_Returns400() throws Exception {
         String longDescription = "a".repeat(201);
-        Film film = new Film(null, "Film", longDescription,
-                LocalDate.of(2000, 1, 1), 120);
+        String filmJson = "{\"name\":\"Film\", \"description\":\"" + longDescription + "\", \"releaseDate\":\"2000-01-01\", \"duration\":120}";
 
         mockMvc.perform(post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(film)))
+                        .content(filmJson))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     void createFilm_ReleaseDateBefore1895_Returns400() throws Exception {
-        Film film = new Film(null, "Film", "Description",
-                LocalDate.of(1895, 12, 27), 120);
+        String filmJson = "{\"name\":\"Film\", \"description\":\"Description\", \"releaseDate\":\"1895-12-27\", \"duration\":120}";
 
         mockMvc.perform(post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(film)))
+                        .content(filmJson))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     void createFilm_NegativeDuration_Returns400() throws Exception {
-        Film film = new Film(null, "Film", "Description",
-                LocalDate.of(2000, 1, 1), -10);
+        String filmJson = "{\"name\":\"Film\", \"description\":\"Description\", \"releaseDate\":\"2000-01-01\", \"duration\":-10}";
 
         mockMvc.perform(post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(film)))
+                        .content(filmJson))
                 .andExpect(status().isBadRequest());
     }
 
@@ -84,7 +92,7 @@ class FilmControllerTest {
     void createFilm_EmptyBody_Returns400() throws Exception {
         mockMvc.perform(post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(""))
+                        .content("{}"))
                 .andExpect(status().isBadRequest());
     }
 }
