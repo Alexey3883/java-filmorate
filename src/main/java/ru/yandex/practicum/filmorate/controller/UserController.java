@@ -1,8 +1,8 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -13,13 +13,9 @@ import java.util.*;
 @RestController
 @RequestMapping("/users")
 @Slf4j
+@RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
-
-    @Autowired
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
 
     @PostMapping
     public User createUser(@Valid @RequestBody User user) {
@@ -59,5 +55,10 @@ public class UserController {
     @GetMapping("/{id}/friends/common/{otherId}")
     public List<User> getCommonFriends(@PathVariable Integer id, @PathVariable Integer otherId) {
         return userService.getCommonFriends(id, otherId);
+    }
+
+    @PutMapping("/{id}/friends/confirm/{friendId}")
+    public void confirmFriend(@PathVariable Integer id, @PathVariable Integer friendId) {
+        userService.confirmFriend(id, friendId);
     }
 }

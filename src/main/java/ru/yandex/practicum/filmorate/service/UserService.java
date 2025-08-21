@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.FriendshipStatus;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 import java.util.*;
@@ -56,12 +57,18 @@ public class UserService {
         }
 
         User user = getUser(userId);
-
         User friend = getUser(friendId);
 
-        user.getFriends().add(friendId);
+        user.getFriends().put(friendId, FriendshipStatus.UNCONFIRMED);
+        friend.getFriends().put(userId, FriendshipStatus.UNCONFIRMED);
+    }
 
-        friend.getFriends().add(userId);
+    public void confirmFriend(Integer userId, Integer friendId) {
+        User user = getUser(userId);
+        User friend = getUser(friendId);
+
+        user.getFriends().put(friendId, FriendshipStatus.CONFIRMED);
+        friend.getFriends().put(userId, FriendshipStatus.CONFIRMED);
     }
 
     public void removeFriend(Integer userId, Integer friendId) {
@@ -73,7 +80,7 @@ public class UserService {
 
     public List<User> getFriends(Integer userId) {
         User user = getUser(userId);
-        return user.getFriends().stream()
+        return user.getFriends().keySet().stream()
                 .map(this::getUser)
                 .collect(Collectors.toList());
     }
@@ -82,8 +89,8 @@ public class UserService {
         User user = getUser(userId);
         User otherUser = getUser(otherId);
 
-        return user.getFriends().stream()
-                .filter(id -> otherUser.getFriends().contains(id))
+        return user.getFriends().keySet().stream()
+                .filter(id -> otherUser.getFriends().containsKey(id))
                 .map(this::getUser)
                 .collect(Collectors.toList());
     }
