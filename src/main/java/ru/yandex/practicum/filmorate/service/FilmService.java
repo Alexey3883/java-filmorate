@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+
 import java.util.*;
 
 @Service
@@ -19,7 +20,7 @@ public class FilmService {
     private final GenreService genreService;
 
     @Autowired
-    public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage, UserService userService, 
+    public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage, UserService userService,
                        MpaService mpaService, GenreService genreService) {
         this.filmStorage = filmStorage;
         this.userService = userService;
@@ -28,12 +29,10 @@ public class FilmService {
     }
 
     public Film addFilm(Film film) {
-        // Validate MPA rating exists
         if (film.getMpa() != null && film.getMpa().getId() != null) {
             mpaService.getMpaRatingById(film.getMpa().getId());
         }
-        
-        // Validate all genres exist
+
         if (film.getGenres() != null && !film.getGenres().isEmpty()) {
             for (Genre genre : film.getGenres()) {
                 if (genre.getId() != null) {
@@ -41,7 +40,7 @@ public class FilmService {
                 }
             }
         }
-        
+
         return filmStorage.addFilm(film);
     }
 
