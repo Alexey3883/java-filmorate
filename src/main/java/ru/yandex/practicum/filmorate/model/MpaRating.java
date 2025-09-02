@@ -1,19 +1,17 @@
 package ru.yandex.practicum.filmorate.model;
 
-public enum MpaRating {
-    G("G"),
-    PG("PG"),
-    PG_13("PG-13"),
-    R("R"),
-    NC_17("NC-17");
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-    private final String value;
-
-    MpaRating(String value) {
-        this.value = value;
-    }
-
-    public String getValue() {
-        return value;
-    }
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class MpaRating {
+    private Integer id;
+    @NotNull
+    private String name;
 }
