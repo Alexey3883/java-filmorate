@@ -29,6 +29,11 @@ public class FilmService {
     }
 
     public Film addFilm(Film film) {
+        validateFilmReferences(film);
+        return filmStorage.addFilm(film);
+    }
+
+    private void validateFilmReferences(Film film) {
         if (film.getMpa() != null && film.getMpa().getId() != null) {
             mpaService.getMpaRatingById(film.getMpa().getId());
         }
@@ -40,8 +45,6 @@ public class FilmService {
                 }
             }
         }
-
-        return filmStorage.addFilm(film);
     }
 
     public Film updateFilm(Film film) {
@@ -67,7 +70,7 @@ public class FilmService {
         Film film = getFilm(filmId);
         userService.getUser(userId);
 
-        ((ru.yandex.practicum.filmorate.storage.film.FilmDbStorage) filmStorage).addLike(filmId, userId);
+        filmStorage.addLike(filmId, userId);
 
         log.info("Пользователь {} поставил лайк фильму {}", userId, filmId);
     }
@@ -76,13 +79,13 @@ public class FilmService {
         Film film = getFilm(filmId);
         userService.getUser(userId);
 
-        ((ru.yandex.practicum.filmorate.storage.film.FilmDbStorage) filmStorage).removeLike(filmId, userId);
+        filmStorage.removeLike(filmId, userId);
         log.info("Пользователь {} удалил лайк с фильма {}", userId, filmId);
     }
 
     public List<Film> getPopularFilms(Integer count) {
         int resultSize = count == null ? 10 : count;
 
-        return ((ru.yandex.practicum.filmorate.storage.film.FilmDbStorage) filmStorage).getPopularFilms(resultSize);
+        return filmStorage.getPopularFilms(resultSize);
     }
 }
