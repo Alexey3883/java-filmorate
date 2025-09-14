@@ -20,18 +20,22 @@ import java.util.*;
 public class Film {
     private Integer id;
 
-    @NotBlank
+    @NotBlank(message = "Название фильма не может быть пустым")
     private String name;
 
-    @Size(max = 200)
+    @Size(max = 200, message = "Описание не может превышать 200 символов")
     private String description;
 
     @NotNull(message = "Дата релиза обязательна")
     @MinReleaseDate
     private LocalDate releaseDate;
 
-    @Positive
+    @Positive(message = "Продолжительность должна быть положительным числом")
     private int duration;
 
+    @NotNull
+    private MpaRating mpa;
+
+    private Set<Genre> genres = new HashSet<>();
     private Set<Integer> likes = new HashSet<>();
 }

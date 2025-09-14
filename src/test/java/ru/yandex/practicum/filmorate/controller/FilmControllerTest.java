@@ -6,16 +6,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.MpaRating;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles("test")
+@Sql(scripts = {"/schema.sql", "/data.sql"}, config = @SqlConfig(encoding = "UTF-8"))
 class FilmControllerTest {
 
     @Autowired
@@ -31,6 +38,9 @@ class FilmControllerTest {
                 .description("Description")
                 .releaseDate(LocalDate.of(2000, 1, 1))
                 .duration(120)
+                .mpa(MpaRating.builder().id(2).name("PG").build())
+                .genres(new HashSet<>())
+                .likes(new HashSet<>())
                 .build();
 
         mockMvc.perform(post("/films")
@@ -49,7 +59,8 @@ class FilmControllerTest {
 
     @Test
     void createFilm_EmptyName_Returns400() throws Exception {
-        String filmJson = "{\"name\":\"\", \"description\":\"Description\", \"releaseDate\":\"2000-01-01\", \"duration\":120}";
+        String filmJson = "{\"name\":\"\", \"description\":\"Description\", \"releaseDate\":\"2000-01-01\"," +
+                " \"duration\":120}";
 
         mockMvc.perform(post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -60,7 +71,8 @@ class FilmControllerTest {
     @Test
     void createFilm_Description201Chars_Returns400() throws Exception {
         String longDescription = "a".repeat(201);
-        String filmJson = "{\"name\":\"Film\", \"description\":\"" + longDescription + "\", \"releaseDate\":\"2000-01-01\", \"duration\":120}";
+        String filmJson = "{\"name\":\"Film\", \"description\":\"" + longDescription + "\", " +
+                "\"releaseDate\":\"2000-01-01\", \"duration\":120}";
 
         mockMvc.perform(post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -70,7 +82,8 @@ class FilmControllerTest {
 
     @Test
     void createFilm_ReleaseDateBefore1895_Returns400() throws Exception {
-        String filmJson = "{\"name\":\"Film\", \"description\":\"Description\", \"releaseDate\":\"1895-12-27\", \"duration\":120}";
+        String filmJson = "{\"name\":\"Film\", \"description\":\"Description\", \"releaseDate\":\"1895-12-27\", " +
+                "\"duration\":120}";
 
         mockMvc.perform(post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -80,7 +93,8 @@ class FilmControllerTest {
 
     @Test
     void createFilm_NegativeDuration_Returns400() throws Exception {
-        String filmJson = "{\"name\":\"Film\", \"description\":\"Description\", \"releaseDate\":\"2000-01-01\", \"duration\":-10}";
+        String filmJson = "{\"name\":\"Film\", \"description\":\"Description\", \"releaseDate\":\"2000-01-01\", " +
+                "\"duration\":-10}";
 
         mockMvc.perform(post("/films")
                         .contentType(MediaType.APPLICATION_JSON)

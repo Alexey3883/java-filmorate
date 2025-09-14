@@ -1,20 +1,21 @@
 package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class UserService {
     private final UserStorage userStorage;
 
     @Autowired
-    public UserService(UserStorage userStorage) {
+    public UserService(@Qualifier("userDbStorage") UserStorage userStorage) {
         this.userStorage = userStorage;
     }
 
@@ -56,35 +57,36 @@ public class UserService {
         }
 
         User user = getUser(userId);
-
         User friend = getUser(friendId);
 
-        user.getFriends().add(friendId);
+        ((ru.yandex.practicum.filmorate.storage.user.UserDbStorage) userStorage).addFriend(userId, friendId);
+    }
 
-        friend.getFriends().add(userId);
+    public void confirmFriend(Integer userId, Integer friendId) {
+        User user = getUser(userId);
+        User friend = getUser(friendId);
+
+        ((ru.yandex.practicum.filmorate.storage.user.UserDbStorage) userStorage).confirmFriend(userId, friendId);
     }
 
     public void removeFriend(Integer userId, Integer friendId) {
         User user = getUser(userId);
         User friend = getUser(friendId);
-        user.getFriends().remove(friendId);
-        friend.getFriends().remove(userId);
+
+        ((ru.yandex.practicum.filmorate.storage.user.UserDbStorage) userStorage).removeFriend(userId, friendId);
     }
 
     public List<User> getFriends(Integer userId) {
         User user = getUser(userId);
-        return user.getFriends().stream()
-                .map(this::getUser)
-                .collect(Collectors.toList());
+
+        return ((ru.yandex.practicum.filmorate.storage.user.UserDbStorage) userStorage).getFriends(userId);
     }
 
     public List<User> getCommonFriends(Integer userId, Integer otherId) {
         User user = getUser(userId);
         User otherUser = getUser(otherId);
 
-        return user.getFriends().stream()
-                .filter(id -> otherUser.getFriends().contains(id))
-                .map(this::getUser)
-                .collect(Collectors.toList());
+        return ((ru.yandex.practicum.filmorate.storage.user.UserDbStorage) userStorage)
+                .getCommonFriends(userId, otherId);
     }
 }
